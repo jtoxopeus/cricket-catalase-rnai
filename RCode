@@ -1,0 +1,555 @@
+library(ggplot2)
+
+#setting up ggplot theme
+MyTheme <- theme(
+  panel.grid.major=element_blank(),
+  panel.grid.minor=element_blank(),
+  panel.background=element_blank(),
+  axis.line.x=element_line(colour="black", size=0.5, linetype="solid"),
+  axis.line.y=element_line(colour="black", size=0.5, linetype="solid"),
+  axis.text=element_text(colour="black", size=10),
+  axis.title.x=element_text(vjust=-0.3),
+  axis.title.y=element_text(vjust=0.35),
+  legend.title=element_blank(),
+  legend.key=element_rect(fill="white"),
+  legend.text=element_text(colour="black", size=10),
+  legend.position="right")
+
+#################################################################
+##                                                             ##
+##            Acclimation Data - mRNA abundance                ##
+##                                                             ##
+#################################################################
+
+#reading in data
+my.data <- read.csv("Acclimation_qPCR_forR.csv")
+str(my.data)
+colnames(my.data)[1] <- "Tissue" #fix column heading
+my.data$AcclimationTime <- as.factor (my.data$AcclimationTime) #convert accl time to factors
+
+#plotting relative catalase mRNA abundance (relative to week 0)
+ggplot(my.data, aes(x = Tissue, y = RelativeCatalase_mRNA, fill = AcclimationTime)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#FFFFFF", "#56B4E9", "#0072b2")) + 
+  labs(x="Tissue", y="Relative Catalase mRNA abundance") +
+  scale_y_continuous(limits=c(0,7.5), expand=c(0,0)) + 
+  MyTheme
+#export as "AcclimationCatalaseRNA_Relative.pdf" 3" high x 3.5" wide
+
+#subsetting data for stats
+FB <- my.data[which(my.data$Tissue=="FB"),]
+MG <- my.data[which(my.data$Tissue=="MG"),]
+MT <- my.data[which(my.data$Tissue=="MT"),]
+
+#ANOVA for fat body: mRNA increases mid-acclimation (3 vs. 0 and 6 week)
+FB.aov <- aov(DeltaDeltaCq ~ AcclimationTime, data=FB)
+summary(FB.aov) #output pasted below
+#                Df Sum Sq Mean Sq F value  Pr(>F)   
+#AcclimationTime  2  9.339   4.669   9.702 0.00264 **
+#Residuals       13  6.257   0.481                   
+#---
+#  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+TukeyHSD(FB.aov)$AcclimationTime #post-hoc test #output pasted below
+#          diff        lwr        upr       p adj
+#3-0 -1.8568750 -2.9786150 -0.7351350 0.002033747
+#6-0 -0.3997917 -1.5215317  0.7219484 0.625074086
+#6-3  1.4570833  0.1618095  2.7523572 0.027332398
+
+
+#ANOVA for midgut: no change in mRNA abundance during acclimation
+MG.aov <- aov(DeltaDeltaCq ~ AcclimationTime, data=MG)
+summary(MG.aov) #output pasted below
+#                Df Sum Sq Mean Sq F value Pr(>F)
+#AcclimationTime  2  2.201   1.100   1.749  0.201
+#Residuals       19 11.952   0.629  
+
+#TukeyHSD(MG.aov)$AcclimationTime #no post-hoc test required
+
+#ANOVA for Malpighian tubules: mRNA abundance decreases during acclimation (3 and 6 week vs. 0)
+MT.aov <- aov(DeltaDeltaCq ~ AcclimationTime, data=MT)
+summary(MT.aov) #output pasted below
+#                Df Sum Sq Mean Sq F value  Pr(>F)   
+#AcclimationTime  2  7.553   3.776   6.121 0.00995 **
+#Residuals       17 10.488   0.617                   
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+ 
+TukeyHSD(MT.aov)$AcclimationTime #post-hoc test #output pasted below
+#         diff         lwr       upr       p adj
+#3-0  1.643444  0.42330131 2.8635876 0.008056591
+#6-0  1.090481 -0.03343186 2.2143948 0.057993436
+#6-3 -0.552963 -1.61496124 0.5090353 0.395522591
+
+#################################################################
+##                                                             ##
+##            Acclimation Data - Enzyme Activity               ##
+##                                                             ##
+#################################################################
+
+#reading in data
+my.data <- read.csv("Acclimation_EnzymeActivity_forR.csv")
+str(my.data)
+colnames(my.data)[1] <- "Tissue" #fix column heading
+my.data$AcclimationTime <- as.factor (my.data$AcclimationTime) #convert accl time to factors
+
+#plotting absolute catalase activity
+ggplot(my.data, aes(x = Tissue, y = CatalaseActivity.U.mgProtein., fill = AcclimationTime)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#FFFFFF", "#56B4E9", "#0072b2")) + 
+  labs(x="Tissue", y="Catalase Activity (U/mg protein)") +
+  scale_y_continuous(limits=c(0,0.75), expand=c(0,0)) + 
+  MyTheme
+#export as "AcclimationCatalaseActivity.pdf" 3" high x 3.5" wide
+#create two-panel layout for this plot and mRNA abundance plot in InkScape
+
+#plotting relative catalase activity (relative to week 0)
+ggplot(my.data, aes(x = Tissue, y = RelativeCatalase_Activity, fill = AcclimationTime)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#FFFFFF", "#56B4E9", "#0072b2")) + 
+  labs(x="Tissue", y="Relative Catalase Activity") +
+  scale_y_continuous(limits=c(0,2), expand=c(0,0)) + 
+  MyTheme
+#export as "AcclimationCatalaseActivity_Relative.pdf" 3" high x 3.5" wide
+
+#subsetting data for stats
+FB <- my.data[which(my.data$Tissue=="FB"),]
+MG <- my.data[which(my.data$Tissue=="MG"),]
+MT <- my.data[which(my.data$Tissue=="MT"),]
+
+#ANOVA for fat body: activity increases over acclimation time (6 vs. 0 week)
+FB.aov <- aov(CatalaseActivity.U.mgProtein. ~ AcclimationTime, data=FB)
+summary(FB.aov) #output pasted below
+#                Df  Sum Sq  Mean Sq F value Pr(>F)  
+#AcclimationTime  2 0.02408 0.024075   6.364 0.0226 *
+#Residuals       15 0.06052 0.003783                 
+#---
+#  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+TukeyHSD(FB.aov)$AcclimationTime #post-hoc test #output pasted below
+          #diff          lwr       upr     p adj
+#3-0 0.02525480 -0.068795819 0.1193054 0.7685595
+#6-0 0.08958299 -0.004467627 0.1836336 0.0430077
+#6-3 0.06432819 -0.029722429 0.1583788 0.2108518
+
+
+#ANOVA for midgut: no change in enzyme activity during acclimation
+MG.aov <- aov(CatalaseActivity.U.mgProtein. ~ AcclimationTime, data=MG)
+summary(MG.aov) #output pasted below
+#                 Df  Sum Sq  Mean Sq F value Pr(>F)
+#AcclimationTime  2 0.00061 0.000607   0.134   0.72
+#Residuals       12 0.05899 0.004538  
+
+#TukeyHSD(MG.aov)$AcclimationTime #no post-hoc test required
+
+#ANOVA for Malpighian tubules: no change in enzyme activity during acclimation
+MT.aov <- aov(CatalaseActivity.U.mgProtein. ~ AcclimationTime, data=MT)
+summary(MT.aov) #output pasted below
+#                Df  Sum Sq  Mean Sq F value Pr(>F)
+#AcclimationTime  2 0.00329 0.003292   0.389  0.543
+#Residuals       13 0.11861 0.008472 
+
+#TukeyHSD(MT.aov)$AcclimationTime #no post-hoc test required
+
+#################################################################
+##                                                             ##
+##          RNAi Across Tissues - mRNA abundance               ##
+##                                                             ##
+#################################################################
+
+#reading in data
+my.data <- read.csv("RNAi_qPCR_AllTissues_forR.csv")
+str(my.data)
+colnames(my.data)[1]<- "Tissue"
+
+#plotting relative Catalase mRNA abundance
+ggplot(my.data, aes(x = Tissue, y = RelativeCatalase_mRNA, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x = "Tissue", y = "Relative Catalase mRNA") + 
+  scale_y_continuous(limits = c(0,2.5), expand = c(0,0)) + 
+  MyTheme
+#export as "RNAiAllTissuesCatalaseRNA_Relative.pdf" 3" high x 3.5" wide 
+
+#subsetting data for stats
+FB <- my.data[which(my.data5$Tissue=="FB"),]
+MG <- my.data[which(my.data5$Tissue=="MG"),]
+MT <- my.data[which(my.data5$Tissue=="MT"),]
+
+#one-sided t-test for fat body: RNAi is effective
+FB.t <- t.test(FB$DeltaDeltaCq[FB$Treatment=="Control"],
+               FB$DeltaDeltaCq[FB$Treatment=="RNAi"],
+               alternative = "less") #testing H that control < RNAi
+
+FB.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  FB$DeltaDeltaCq[FB$Treatment == "Control"] and FB$DeltaDeltaCq[FB$Treatment == "RNAi"]
+#t = -4.6103, df = 6.8162, p-value = 0.001315
+#alternative hypothesis: true difference in means is less than 0
+#95 percent confidence interval:
+#  -Inf -1.741323
+#sample estimates:
+#  mean of x     mean of y 
+#-1.111111e-10  2.964538e+00  
+
+#one-sided t-test for midgut: RNAi is effective
+MG.t <- t.test(MG$DeltaDeltaCq[MG$Treatment=="Control"],
+               MG$DeltaDeltaCq[MG$Treatment=="RNAi"],
+               alternative = "less") #testing H that control < RNAi
+
+MG.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  MG$DeltaDeltaCq[MG$Treatment == "Control"] and MG$DeltaDeltaCq[MG$Treatment == "RNAi"]
+#t = -4.0426, df = 13.018, p-value = 0.0006959
+#alternative hypothesis: true difference in means is less than 0
+#95 percent confidence interval:
+#  -Inf -1.045699
+#sample estimates:
+#  mean of x     mean of y 
+#-0.0000000001  1.8607356280 
+
+#one-sided t-test for Malpighian tubules: RNAi does NOT knock down enzyme activity
+MT.t <- t.test(MT$DeltaDeltaCq[MT$Treatment=="Control"],
+               MT$DeltaDeltaCq[MT$Treatment=="RNAi"],
+               alternative = "less") #testing H that control < RNAi
+
+MT.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  MT$DeltaDeltaCq[MT$Treatment == "Control"] and MT$DeltaDeltaCq[MT$Treatment == "RNAi"]
+#t = -5.8384, df = 12.266, p-value = 3.656e-05
+#alternative hypothesis: true difference in means is less than 0
+#95 percent confidence interval:
+#  -Inf -1.836422
+#sample estimates:
+#  mean of x     mean of y 
+#-1.734723e-18  2.641277e+00  
+
+#################################################################
+##                                                             ##
+##          RNAi Across Tissues - Enzyme Activity              ##
+##                                                             ##
+#################################################################
+
+#reading in data
+my.data <- read.csv("RNAi_EnzymeActivity_AllTissues_forR.csv")
+str(my.data)
+colnames(my.data)[1] <- "Tissue" #fix column heading
+
+#plotting absolute catalase activity
+ggplot(my.data, aes(x = Tissue, y = CatalaseActivity.U.mgProtein., fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Catalase Activity (U/mg protein)") +
+  scale_y_continuous(limits=c(0,0.9), expand=c(0,0)) + 
+  MyTheme
+#export as "RNAiAllTissuesCatalaseActivity.pdf" 3" high x 3.5" wide
+
+
+#plotting relative catalase activity (relative to week 0)
+ggplot(my.data, aes(x = Tissue, y = RelativeCatalase_Activity, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Relative Catalase Activity") +
+  scale_y_continuous(limits=c(0,2), expand=c(0,0)) + 
+  MyTheme
+#export as RNAiAllTissuesCatalaseActivity_Relative.pdf" 3" high x 3.5" wide
+#create two-panel layout for this plot and mRNA abundance plot in InkScape
+
+#subsetting data for stats
+FB <- my.data[which(my.data$Tissue=="FB"),]
+MG <- my.data[which(my.data$Tissue=="MG"),]
+MT <- my.data[which(my.data$Tissue=="MT"),]
+
+#one-sided t-test for fat body: RNAi knocks down enzyme activity
+FB.t <- t.test(FB$CatalaseActivity.U.mgProtein.[FB$Treatment=="Control"],
+               FB$CatalaseActivity.U.mgProtein.[FB$Treatment=="RNAi"],
+               alternative = "greater") #testing H that control > RNAi
+
+FB.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  FB$CatalaseActivity.U.mgProtein.[FB$Treatment == "Control"] and FB$CatalaseActivity.U.mgProtein.[FB$Treatment == "RNAi"]
+#t = 3.7478, df = 15.78, p-value = 0.0008968
+#alternative hypothesis: true difference in means is greater than 0
+#95 percent confidence interval:
+# 0.07022373        Inf
+#sample estimates:
+#mean of x mean of y 
+#0.2397045 0.1081384 
+
+#one-sided t-test for midgut: RNAi knocks down enzyme activity
+MG.t <- t.test(MG$CatalaseActivity.U.mgProtein.[MG$Treatment=="Control"],
+               MG$CatalaseActivity.U.mgProtein.[MG$Treatment=="RNAi"],
+               alternative = "greater") #testing H that control > RNAi
+
+MG.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  MG$CatalaseActivity.U.mgProtein.[MG$Treatment == "Control"] and MG$CatalaseActivity.U.mgProtein.[MG$Treatment == "RNAi"]
+#t = 3.5762, df = 16.583, p-value = 0.001202
+#alternative hypothesis: true difference in means is greater than 0
+#95 percent confidence interval:
+#0.07730041        Inf
+#sample estimates:
+#mean of x mean of y 
+#0.3553803 0.2046550 
+
+#one-sided t-test for Malpighian tubules: RNAi does NOT knock down enzyme activity
+MT.t <- t.test(MT$CatalaseActivity.U.mgProtein.[MT$Treatment=="Control"],
+               MT$CatalaseActivity.U.mgProtein.[MT$Treatment=="RNAi"],
+               alternative = "greater") #testing H that control > RNAi
+
+MT.t #output pasted below
+#Welch Two Sample t-test
+#
+#data:  MT$CatalaseActivity.U.mgProtein.[MT$Treatment == "Control"] and MT$CatalaseActivity.U.mgProtein.[MT$Treatment == "RNAi"]
+#t = 0.83051, df = 21.924, p-value = 0.2076
+#alternative hypothesis: true difference in means is greater than 0
+#95 percent confidence interval:
+#-0.05666446         Inf
+#sample estimates:
+#mean of x mean of y 
+#0.4650070 0.4119457 
+
+#################################################################
+##                                                             ##
+##              Survival following acclimation                 ##
+##                                                             ##
+#################################################################
+
+#reading in data
+counts <- read.csv("SurvivalTemperature_forR.csv", stringsAsFactors = FALSE)
+str(counts)
+counts #temperature treatments in rows, live-dead data in columns
+
+#reordering factor levels for plotting
+counts$Temp <- factor(counts$Temp, 
+                      levels = c("Low", "Mod", "High"),
+                      labels = c(4, 15, 22))
+
+ggplot(counts, aes(x = Temp, y = PAlive)) + 
+  geom_col(fill="#0072b2", colour="black", width=0.75) +  
+  geom_errorbar(aes(ymin=PAlive-SEP, ymax=PAlive+SEP), width=.2,
+                position=position_dodge(.9)) +
+  labs(x="Post-Acclimation Temperature (°C)", 
+       y="Proportion Alive Post-Freeze") +
+  scale_y_continuous(limits=c(0,1), expand=c(0,0)) + 
+  MyTheme
+#export as SurvivalTemperature.pdf" 3" high x 3.5" wide
+
+
+#formatting data for Chi-square test
+#keep only Alive and Dead columns and replace first column with row names
+counts <- counts[,2:3]
+rownames(counts) <- c("Low", "Mod", "High")
+
+chisq.test(counts) #output pasted below
+#Pearson's Chi-squared test
+#
+#data:  counts
+#X-squared = 8.5546, df = 2, p-value = 0.01388
+
+#################################################################
+##                                                             ##
+##       RNAi Across Temperatures - mRNA abundance             ##
+##                                                             ##
+#################################################################
+
+#reading in data
+my.data <- read.csv("RNAi_qPCR_Temperature_forR.csv")
+str(my.data)
+colnames(my.data)[1] <- "Tissue" #fix column heading
+
+#reordering factor levels for plotting
+my.data$RNAi_Condition <- factor(my.data$RNAi_Condition, 
+                                 levels = c("HighTemp-3d", 
+                                            "HighTemp-7d",
+                                            "LowTemp-3d",
+                                            "LowTemp-7d"))
+
+#subsetting data for plotting and stats
+FB <- my.data[which(my.data$Tissue=="FB"),]
+MG <- my.data[which(my.data$Tissue=="MG"),]
+
+#plotting relative catalase activity (relative to week 0) for fat body
+ggplot(FB, aes(x = RNAi_Condition, y = RelativeCatalase_mRNA, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Relative Catalase mRNA abundance") +
+  scale_y_continuous(limits=c(0,3), expand=c(0,0)) + 
+  MyTheme
+#export as RNAiFBTemperatureCatalaseRNA_Relative.pdf" 3" high x 5.5" wide
+
+#plotting relative catalase activity (relative to week 0) for midgut
+ggplot(MG, aes(x = RNAi_Condition, y = RelativeCatalase_mRNA, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Relative Catalase mRNA abundance") +
+  scale_y_continuous(limits=c(0,3), expand=c(0,0)) + 
+  MyTheme
+#export as RNAiMGTemperatureCatalaseRNA_Relative.pdf" 3" high x 5.5" wide
+
+#Two-way ANOVA for fat body at high temperature: RNAi effective 
+FB.aov <- aov(DeltaDeltaCq ~ Treatment * RNAi_Days, 
+              data=FB[FB$RNAi_Temp==22,])
+summary(FB.aov) #output pasted below
+#                    Df Sum Sq Mean Sq F value Pr(>F)  
+#Treatment            1  7.738   7.738   7.240 0.0119 *
+#RNAi_Days            1  2.317   2.317   2.168 0.1521  
+#Treatment:RNAi_Days  1  1.854   1.854   1.734 0.1985  
+#Residuals           28 29.927   1.069                 
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+#Two-way ANOVA for fat body at low temperature: construct x time interaction
+FB.aov <- aov(DeltaDeltaCq ~ Treatment * RNAi_Days, 
+              data=FB[FB$RNAi_Temp==15,])
+summary(FB.aov) #output pasted below
+#                    Df Sum Sq Mean Sq F value Pr(>F)   
+#Treatment            1  0.937   0.937   1.003 0.3246   
+#RNAi_Days            1  8.715   8.715   9.328 0.0047 **
+#Treatment:RNAi_Days  1  7.490   7.490   8.016 0.0082 **
+#Residuals           30 28.030   0.934                  
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+#Two-way ANOVA for midgut at high temperature: RNAi is effective
+MG.aov <- aov(DeltaDeltaCq ~ Treatment * RNAi_Days, 
+              data=MG[MG$RNAi_Temp==22,])
+summary(MG.aov) #output pasted below
+#                    Df Sum Sq Mean Sq F value   Pr(>F)    
+#Treatment            1 19.164  19.164  23.597 4.89e-05 ***
+#RNAi_Days            1  1.781   1.781   2.193    0.151    
+#Treatment:RNAi_Days  1  1.776   1.776   2.187    0.151    
+#Residuals           26 21.115   0.812                     
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+#Two-way ANOVA for midgut at low temperature: no effect of RNAi or time
+MG.aov <- aov(DeltaDeltaCq ~ Treatment * RNAi_Days, 
+              data=MG[MG$RNAi_Temp==15,])
+summary(MG.aov) #output pasted below
+#                    Df Sum Sq Mean Sq F value Pr(>F)
+#Treatment            1  0.679  0.6792   1.277  0.268
+#RNAi_Days            1  0.778  0.7780   1.463  0.236
+#Treatment:RNAi_Days  1  0.689  0.6888   1.296  0.264
+#Residuals           29 15.419  0.5317 
+
+
+#################################################################
+##                                                             ##
+##       RNAi Across Temperatures - Enzyme Activity            ##
+##                                                             ##
+#################################################################
+
+###### Need to update stats (e.g., ANOVA with planned contrasts) #########
+
+#reading in data
+my.data <- read.csv("RNAi_EnzymeActivity_Temperature_forR.csv")
+str(my.data)
+colnames(my.data)[1] <- "Tissue" #fix column heading
+
+#reordering factor levels for plotting
+my.data$RNAi_Condition <- factor(my.data$RNAi_Condition, 
+                                 levels = c("HighTemp-3d", 
+                                            "HighTemp-7d",
+                                            "LowTemp-3d",
+                                            "LowTemp-7d"))
+
+#subsetting data for plotting and stats
+FB <- my.data[which(my.data$Tissue=="FB"),]
+MG <- my.data[which(my.data$Tissue=="MG"),]
+
+#plotting relative catalase activity (relative to week 0) for fat body
+ggplot(FB, aes(x = RNAi_Condition, y = RelativeCatalase_Activity, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Relative Catalase Activity") +
+  scale_y_continuous(limits=c(0,2.2), expand=c(0,0)) + 
+  MyTheme
+#export as RNAiFBTemperatureCatalaseActivity_Relative.pdf" 3" high x 5.5" wide
+
+#plotting relative catalase activity (relative to week 0) for midgut
+ggplot(MG, aes(x = RNAi_Condition, y = RelativeCatalase_Activity, fill = Treatment)) + 
+  geom_boxplot() + scale_fill_manual(values = c("#999999", "#009E73")) + 
+  labs(x="Tissue", y="Relative Catalase Activity") +
+  scale_y_continuous(limits=c(0,2.2), expand=c(0,0)) + 
+  MyTheme
+#export as RNAiMGTemperatureCatalaseActivity_Relative.pdf" 3" high x 5.5" wide
+
+#Two-way ANOVA for fat body at high temperature: no effect of RNAi construct or time
+#(probably due to such high variability at 7 d)
+FB.aov <- aov(CatalaseActivity.U.mgProtein. ~ Treatment * RNAi_Days, 
+              data=FB[FB$RNAi_Temp==22,])
+summary(FB.aov) #output pasted below
+#                    Df  Sum Sq  Mean Sq F value Pr(>F)
+#Treatment            1 0.00345 0.003446   0.632  0.435
+#RNAi_Days            1 0.00003 0.000030   0.005  0.942
+#Treatment:RNAi_Days  1 0.00517 0.005172   0.948  0.341
+#Residuals           22 0.12000 0.005455 
+
+#Two-way ANOVA for fat body at low temperature: no effect of RNAi construct or time
+FB.aov <- aov(CatalaseActivity.U.mgProtein. ~ Treatment * RNAi_Days, 
+              data=FB[FB$RNAi_Temp==15,])
+summary(FB.aov) #output pasted below
+#                    Df  Sum Sq  Mean Sq F value Pr(>F)
+#Treatment            1 0.00698 0.006977   1.098  0.305
+#RNAi_Days            1 0.00273 0.002734   0.430  0.518
+#Treatment:RNAi_Days  1 0.00261 0.002615   0.411  0.527
+#Residuals           25 0.15888 0.006355
+
+#Two-way ANOVA for midgut at high temperature: effect of RNAi construct and time
+MG.aov <- aov(CatalaseActivity.U.mgProtein. ~ Treatment * RNAi_Days, 
+              data=MG[MG$RNAi_Temp==22,])
+summary(MG.aov) #output pasted below
+#                    Df  Sum Sq Mean Sq F value   Pr(>F)    
+#Treatment            1 0.12005 0.12005   28.56  2.3e-05 ***
+#RNAi_Days            1 0.07797 0.07797   18.55 0.000285 ***
+#Treatment:RNAi_Days  1 0.00811 0.00811    1.93 0.178665    
+#Residuals           22 0.09246 0.00420                     
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+#Two-way ANOVA for midgut at low temperature: effect of time but not RNAi construct
+MG.aov <- aov(CatalaseActivity.U.mgProtein. ~ Treatment * RNAi_Days, 
+              data=MG[MG$RNAi_Temp==15,])
+summary(MG.aov) #output pasted below
+#                    Df  Sum Sq Mean Sq F value   Pr(>F)    
+#Treatment            1 0.00189 0.00189   0.392 0.537014    
+#RNAi_Days            1 0.07626 0.07626  15.800 0.000528 ***
+#Treatment:RNAi_Days  1 0.00646 0.00646   1.338 0.258342    
+#Residuals           25 0.12067 0.00483                     
+#---
+#Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+#t-tests show pair-wise differences at 22C but not 15C
+
+#################################################################
+##                                                             ##
+##              Survival following acclimation                 ##
+##                                                             ##
+#################################################################
+
+#reading in data
+counts <- read.csv("SurvivalRNAi_forR.csv", stringsAsFactors = FALSE)
+str(counts)
+counts #RNAitreatments in rows, live-dead data in columns
+colnames(counts)[1] <- "Treatment" #fix column heading
+
+ggplot(counts, aes(x = Treatment, y = PAlive, fill=Treatment)) + 
+  geom_col(colour="black", width=0.6) +  
+  scale_fill_manual(values = c("#999999", "#009E73")) +
+  geom_errorbar(aes(ymin=PAlive-SEP, ymax=PAlive+SEP), width=.2,
+                position=position_dodge(.9)) +
+  labs(x="Injection", 
+       y="Proportion Alive Post-Freeze") +
+  scale_y_continuous(limits=c(0,1), expand=c(0,0)) + 
+  MyTheme + theme(
+    legend.position="none")
+#export as SurvivalRNAi.pdf" 3" high x 3.5" wide
+
+
+#formatting data for Chi-square test
+#keep only Alive and Dead columns and replace first column with row names
+counts <- counts[,2:3]
+rownames(counts) <- c("Control", "RNAi")
+
+chisq.test(counts) #output pasted below
+#Pearson's Chi-squared test
+#
+#data:  counts
+#X-squared = 0.20077, df = 1, p-value = 0.6541
