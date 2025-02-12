@@ -15,7 +15,7 @@ This reports Catalase enzyme activity for crickets exposed to different duration
 Each row pertains to a different pool of tissues from 3 crickets, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
+#Tissue:                          Type of tissue - FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
 #SampleID:                        Unique sample identifier<br>
 #AcclimationTime:                 Duration of acclimation exposure in weeks<br>
 #CatalaseActivity(U/mgProtein):   Catalase enzyme activity, expressed in units per mg protein in the tissue<br>
@@ -26,7 +26,7 @@ This reports relative Catalase mRNA abundance for crickets exposed to different 
 Each row pertains to a different pool of tissues from 3 crickets, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
+#Tissue:                          Type of tissue - FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
 #AcclimationTime:                 Duration of acclimation exposure in weeks<br>
 #SampleID:                        Unique sample identifier<br>
 #ef1:                             Cq (also know as Ct) value for the reference gene, ef1<br>
@@ -40,7 +40,7 @@ This reports Catalase enzyme activity for unacclimated crickets exposed to diffe
 Each row pertains to a different cricket, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
+#Tissue:                          Type of tissue - FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
 #SampleID:                        Unique sample identifier<br>
 #AssayWeek:                       Date on which injections were performed<br>
 #Treatment:                       Whether the cricket was injected with dsRNA targeting Catalase (RNAi) or a vehicle control (Control)<br>
@@ -54,7 +54,7 @@ This reports Catalase enzyme activity for acclimated crickets exposed to differe
 Each row pertains to a different cricket, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body) or MG (midgut)<br>
+#Tissue:                          Type of tissue - FB (fat body) or MG (midgut)<br>
 #SampleID:                        Unique sample identifier<br>
 #AssayWeek:                       Date on which injections were performed<br>
 #Treatment:                       Whether the cricket was injected with dsRNA targeting Catalase (RNAi) or a control construct (Control)<br>
@@ -69,7 +69,7 @@ This reports relative Catalase mRNA abundance for for unacclimated crickets expo
 Each row pertains to a different cricket, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
+#Tissue:                          Type of tissue - FB (fat body), MG (midgut), or MT (Malpighian tubules)br>
 #AcclimationTime:                 Duration of acclimation exposure in weeks<br>
 #SampleID:                        Unique sample identifier<br>
 #AssayWeek:                       Date on which injections were performed<br>
@@ -87,7 +87,7 @@ This reports Catalase enzyme activity for acclimated crickets exposed to differe
 Each row pertains to a different cricket, with information provided for each variable (column heading), as described below.
 
 VARIABLE:                         DESCRIPTION <br>
-#Tissue:                          Type of tissue: FB (fat body) or MG (midgut)<br>
+#Tissue:                          Type of tissue - FB (fat body) or MG (midgut)<br>
 #SampleID:                        Unique sample identifier<br>
 #AssayGroup:                      Cohort of crickets on which injections were performed<br>
 #Treatment:                       Whether the cricket was injected with dsRNA targeting Catalase (RNAi) or a control construct (Control)<br>
@@ -106,6 +106,17 @@ Each row pertains to a different group of crickets, with information provided fo
 
 VARIABLE:                  DESCRIPTION <br>
 #Treatment:                Whether crickets were injected with a dsRNA targeting catalase (RNAi) or a control construct (Control) prior to the freeze treatment<br>
+#Alive:                    Number of crickets that were alive post-freeze<br>
+#Dead:                     Number of crickets that were dead post-freeze<br>
+#PAlive:                   Proportion of crickets that were alive post-freeze<br>
+#SEP:                      Standard error of proportion of living crickets<br>
+
+## SurvivalTemperature_forR.csv
+Survival of acclimated crickets following 3 days of post-acclimation exposure to low, moderate, or high temperature, followed by a moderate freeze treament (1.5h at -8C).
+Each row pertains to a different group of crickets, with information provided for each variable (column heading), as described below.
+
+VARIABLE:                  DESCRIPTION <br>
+#Treatment:                Whether crickets were exposed to low (4C), moderate (15C), or high (22C) temperature for 3 days prior to the freeze treatment<br>
 #Alive:                    Number of crickets that were alive post-freeze<br>
 #Dead:                     Number of crickets that were dead post-freeze<br>
 #PAlive:                   Proportion of crickets that were alive post-freeze<br>
